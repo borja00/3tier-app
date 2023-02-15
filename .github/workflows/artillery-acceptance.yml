@@ -1,0 +1,37 @@
+name: artillery-acceptance-test
+on:
+  push:
+    paths:
+      - ".github/workflows/artillery-acceptance.yml"
+      - "web/**"
+      - "api/**"
+      - "docker-compose.yml"
+      - "artillery-acceptance.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install artillery
+        run: npm install artillery
+      - name: Install expect artillery plugin
+        run: npm install artillery-plugin-expect
+      - name: Start containers
+        run: docker-compose -f "docker-compose.yml" up -d --build
+      - name: Verify connection
+        # Artillery does not seem to fail when Connection refused, we do it manually
+        run: nc -z -v localhost 8080
+      - name: Load Test action step
+        id: load-test
+        run: ./node_modules/artillery/bin/artillery run --output reports/report.json artillery-acceptance.yml
+      - name: Generate HTML report
+        run: ./node_modules/artillery/bin/artillery report --output reports/report reports/report.json
+      - name: Archive test report
+        uses: actions/upload-artifact@v2
+        with:
+          name: artillery-test-report
+          path: reports/*
+      - name: Stop containers
+        if: always()
+        run: docker-compose -f "docker-compose.yml" down

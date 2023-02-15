@@ -1,0 +1,11 @@
+apiVersion: 1
+
+datasources:
+  - name: CloudWatch
+    type: cloudwatch
+    isDefault: true
+    jsonData:
+      authType: default
+      assumeRoleArn: $AWS_ASUME_ROLE
+      defaultRegion: $AWS_REGION
+

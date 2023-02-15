@@ -1,0 +1,38 @@
+services:
+
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: data
+      POSTGRES_PASSWORD: example
+
+  api:
+    image: api
+    build: api
+    restart: always
+    ports:
+      - 10000:80
+    environment:
+      PORT: 80
+      DB: data
+      DBUSER: postgres
+      DBPASS: example
+      DBHOST: db
+      DBPORT: 5432
+    depends_on:
+      - db
+  web:
+    image: web
+    build: web
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      PORT: 80
+      API_HOST: http://api
+      # CDN_DOMAIN: d1f5qcgvur65s7.cloudfront.net
+    depends_on:
+      - api

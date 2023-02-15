@@ -1,0 +1,14 @@
+config:
+  target: http://localhost:8080
+  plugins:
+    expect: {}
+  ensure:
+    maxErrorRate: 0
+
+scenarios:
+  - name: web test
+    flow:
+      - get:
+          url: /
+          expect:
+            - statusCode: 200
